@@ -208,8 +208,8 @@ TiogaBlock::update_connectivity()
 
 void
 TiogaBlock::update_iblanks(
-  std::vector<stk::mesh::Entity>& holeNodes,
-  std::vector<stk::mesh::Entity>& fringeNodes)
+  stk::mesh::EntityVector& holeNodes,
+  stk::mesh::EntityVector& fringeNodes)
 {
   ScalarIntFieldType* ibf =
     meta_.get_field<ScalarIntFieldType>(stk::topology::NODE_RANK, "iblank");

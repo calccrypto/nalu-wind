@@ -1689,7 +1689,7 @@ Realm::makeSureNodesHaveValidTopology()
   stk::mesh::Selector nodesNotInNodePart = (!nodePart) & bulkData_->mesh_meta_data().locally_owned_part();
 
   //get all the nodes that are *NOT* in nodePart
-  std::vector<stk::mesh::Entity> nodes_vector;
+  stk::mesh::EntityVector nodes_vector;
   stk::mesh::get_selected_entities(nodesNotInNodePart, bulkData_->buckets(stk::topology::NODE_RANK), nodes_vector);
   // now we require all nodes are in proper node part
   if (nodes_vector.size())
@@ -2182,7 +2182,7 @@ Realm::delete_edges()
   }
 
   stk::mesh::BucketVector const& edge_buckets = bulkData_->get_buckets( stk::topology::EDGE_RANK,  *edgesPart_);
-  std::vector<stk::mesh::Entity> edges;
+  stk::mesh::EntityVector edges;
   stk::mesh::get_selected_entities( *edgesPart_ , edge_buckets, edges);
 
   if (debug()) {

@@ -208,7 +208,7 @@ HypreUVWLinearSystem::sumInto(
 
 void
 HypreUVWLinearSystem::sumInto(
-  const std::vector<stk::mesh::Entity>& /*entities */,
+  const stk::mesh::EntityVector& /*entities */,
   std::vector<int>&  /* scratchIds */,
   std::vector<double>& /* scratchVals */,
   const std::vector<double>& /* rhs */,
@@ -912,7 +912,7 @@ HypreUVWLinearSystem::buildDirichletNodeGraph(
 
 void
 HypreUVWLinearSystem::buildDirichletNodeGraph(
-  const std::vector<stk::mesh::Entity>& nodeList)
+  const stk::mesh::EntityVector& nodeList)
 {
 #ifdef HYPRE_LINEAR_SYSTEM_TIMER
   /* record the start time */

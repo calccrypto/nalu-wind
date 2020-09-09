@@ -80,7 +80,7 @@ AssemblePressureForceBCSolverAlgorithm::execute()
   std::vector<double> rhs;
   std::vector<int> scratchIds;
   std::vector<double> scratchVals;
-  std::vector<stk::mesh::Entity> connected_nodes;
+  stk::mesh::EntityVector connected_nodes;
 
   // nodal fields to gather
   std::vector<double> ws_face_coordinates;
@@ -233,5 +233,3 @@ AssemblePressureForceBCSolverAlgorithm::execute()
 
 } // namespace nalu
 } // namespace Sierra
-
-

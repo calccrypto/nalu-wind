@@ -57,7 +57,7 @@ get_elem_topo(const Realm& realm, const stk::mesh::Part& surfacePart)
     return get_promoted_elem_topo(realm.spatialDimension_, realm.promotionOrder_);
   }
 
-  std::vector<const stk::mesh::Part*> blockParts = realm.meta_data().get_blocks_touching_surface(&surfacePart);
+  stk::mesh::ConstPartVector blockParts = realm.meta_data().get_blocks_touching_surface(&surfacePart);
 
   ThrowRequireMsg(blockParts.size() >= 1, "Error, expected at least 1 block for surface "<<surfacePart.name());
 

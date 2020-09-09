@@ -224,7 +224,7 @@ void TpetraLinearSystem::beginLinearSystemConstruction()
   // the owned nodes then we number the sharedNotOwned nodes.
 
   // make separate arrays that hold the owned and sharedNotOwned gids
-  std::vector<stk::mesh::Entity> owned_nodes, shared_not_owned_nodes;
+  stk::mesh::EntityVector owned_nodes, shared_not_owned_nodes;
   owned_nodes.reserve(numOwnedNodes);
   shared_not_owned_nodes.reserve(numSharedNotOwnedNotLocallyOwned);
 
@@ -301,7 +301,7 @@ void TpetraLinearSystem::beginLinearSystemConstruction()
     }
   }
   std::sort(shared_not_owned_nodes.begin(), shared_not_owned_nodes.end(), CompareEntityById(bulkData, realm_.naluGlobalId_) );
-  std::vector<stk::mesh::Entity>::iterator iter = std::unique(shared_not_owned_nodes.begin(), shared_not_owned_nodes.end(), CompareEntityEqualById(bulkData, realm_.naluGlobalId_));
+  stk::mesh::EntityVector::iterator iter = std::unique(shared_not_owned_nodes.begin(), shared_not_owned_nodes.end(), CompareEntityEqualById(bulkData, realm_.naluGlobalId_));
   shared_not_owned_nodes.erase(iter, shared_not_owned_nodes.end());
 
   for (unsigned inode=0; inode < shared_not_owned_nodes.size(); ++inode) {
@@ -331,7 +331,7 @@ void TpetraLinearSystem::beginLinearSystemConstruction()
   ownedAndSharedNodes_ = owned_nodes;
   ownedAndSharedNodes_.insert(ownedAndSharedNodes_.end(), shared_not_owned_nodes.begin(), shared_not_owned_nodes.end());
   connections_.resize(ownedAndSharedNodes_.size());
-  for(std::vector<stk::mesh::Entity>& vec : connections_) { vec.reserve(8); }
+  for(stk::mesh::EntityVector& vec : connections_) { vec.reserve(8); }
 }
 
 int TpetraLinearSystem::insert_connection(stk::mesh::Entity a, stk::mesh::Entity b)
@@ -349,7 +349,7 @@ int TpetraLinearSystem::insert_connection(stk::mesh::Entity a, stk::mesh::Entity
     }
     ThrowRequireMsg(correctEntity,"Error, indexing of rowEntities to connections isn't right.");
 
-    std::vector<stk::mesh::Entity>& vec = connections_[idx];
+    stk::mesh::EntityVector& vec = connections_[idx];
     if (std::find(vec.begin(), vec.end(), b) == vec.end()) {
         vec.push_back(b);
     }
@@ -449,7 +449,7 @@ void TpetraLinearSystem::buildReducedElemToNodeGraph(const stk::mesh::PartVector
 
   stk::mesh::BucketVector const& buckets =
     realm_.get_buckets( stk::topology::ELEMENT_RANK, s_owned );
-  std::vector<stk::mesh::Entity> entities;
+  stk::mesh::EntityVector entities;
   for(size_t ib=0; ib<buckets.size(); ++ib) {
     const stk::mesh::Bucket & b = *buckets[ib];
 
@@ -517,7 +517,7 @@ void TpetraLinearSystem::buildNonConformalNodeGraph(const stk::mesh::PartVector 
   stk::mesh::BulkData & bulkData = realm_.bulk_data();
   beginLinearSystemConstruction();
 
-  std::vector<stk::mesh::Entity> entities;
+  stk::mesh::EntityVector entities;
 
   // iterate nonConformalManager's dgInfoVecs
   for( NonConformalInfo * nonConfInfo : realm_.nonConformalManager_->nonConformalInfoVec_) {
@@ -572,7 +572,7 @@ void TpetraLinearSystem::buildOversetNodeGraph(const stk::mesh::PartVector & /* 
   stk::mesh::BulkData & bulkData = realm_.bulk_data();
   beginLinearSystemConstruction();
 
-  std::vector<stk::mesh::Entity> entities;
+  stk::mesh::EntityVector entities;
 
   for( const OversetInfo* oversetInfo : realm_.oversetManager_->oversetInfoVec_) {
 
@@ -649,8 +649,8 @@ void TpetraLinearSystem::copy_stk_to_tpetra(const stk::mesh::FieldBase * stkFiel
   }
 }
 
-void TpetraLinearSystem::compute_send_lengths(const std::vector<stk::mesh::Entity>& rowEntities,
-                                              const std::vector<std::vector<stk::mesh::Entity> >& connections,
+void TpetraLinearSystem::compute_send_lengths(const stk::mesh::EntityVector& rowEntities,
+                                              const std::vector<stk::mesh::EntityVector >& connections,
                                               const std::vector<int>& neighborProcs,
                                               stk::CommNeighbors& commNeighbors)
 {
@@ -662,7 +662,7 @@ void TpetraLinearSystem::compute_send_lengths(const std::vector<stk::mesh::Entit
   for(size_t i=0; i<rowEntities.size(); ++i)
   {
     const stk::mesh::Entity entity_a = rowEntities[i];
-    const std::vector<stk::mesh::Entity>& colEntities = connections[i];
+    const stk::mesh::EntityVector& colEntities = connections[i];
     unsigned numColEntities = colEntities.size();
     colEntityIds.resize(numColEntities);
     for(size_t j=0; j<colEntities.size(); ++j) {
@@ -701,8 +701,8 @@ void TpetraLinearSystem::compute_send_lengths(const std::vector<stk::mesh::Entit
   }
 }
 
-void TpetraLinearSystem::compute_graph_row_lengths(const std::vector<stk::mesh::Entity>& rowEntities,
-                                                   const std::vector<std::vector<stk::mesh::Entity> >& connections,
+void TpetraLinearSystem::compute_graph_row_lengths(const stk::mesh::EntityVector& rowEntities,
+                                                   const std::vector<stk::mesh::EntityVector >& connections,
                                                    LinSys::RowLengths& sharedNotOwnedRowLengths,
                                                    LinSys::RowLengths& locallyOwnedRowLengths,
                                                    stk::CommNeighbors& commNeighbors)
@@ -718,7 +718,7 @@ void TpetraLinearSystem::compute_graph_row_lengths(const std::vector<stk::mesh::
 
   for(size_t i=0; i<rowEntities.size(); ++i)
   {
-    const std::vector<stk::mesh::Entity>& colEntities = connections[i];
+    const stk::mesh::EntityVector& colEntities = connections[i];
     unsigned numColEntities = colEntities.size();
     const stk::mesh::Entity entity_a = rowEntities[i];
     colEntityIds.resize(numColEntities);
@@ -768,8 +768,8 @@ void TpetraLinearSystem::compute_graph_row_lengths(const std::vector<stk::mesh::
   }
 }
 
-void TpetraLinearSystem::insert_graph_connections(const std::vector<stk::mesh::Entity>& rowEntities,
-                                                  const std::vector<std::vector<stk::mesh::Entity> >& connections,
+void TpetraLinearSystem::insert_graph_connections(const stk::mesh::EntityVector& rowEntities,
+                                                  const std::vector<stk::mesh::EntityVector >& connections,
                                                   LocalGraphArrays& locallyOwnedGraph,
                                                   LocalGraphArrays& sharedNotOwnedGraph)
 {
@@ -780,7 +780,7 @@ void TpetraLinearSystem::insert_graph_connections(const std::vector<stk::mesh::E
 
   //KOKKOS: Loop noparallel Graph insert
   for(size_t i=0; i<rowEntities.size(); ++i) {
-    const std::vector<stk::mesh::Entity>& entities_b = connections[i];
+    const stk::mesh::EntityVector& entities_b = connections[i];
     unsigned numColEntities = entities_b.size();
     dofStatus.resize(numColEntities);
     localDofs_b.resize(numColEntities);
@@ -1341,7 +1341,7 @@ void TpetraLinearSystem::sumInto(unsigned numEntities,
       numDof_);
 }
 
-void TpetraLinearSystem::sumInto(const std::vector<stk::mesh::Entity> & entities,
+void TpetraLinearSystem::sumInto(const stk::mesh::EntityVector & entities,
                                  std::vector<int> &scratchIds,
                                  std::vector<double> & /* scratchVals */,
                                  const std::vector<double> & rhs,
@@ -1478,7 +1478,7 @@ void TpetraLinearSystem::applyDirichletBCs(stk::mesh::FieldBase * solutionField,
   adbc_time += NaluEnv::self().nalu_time();
 }
 
-void TpetraLinearSystem::resetRows(const std::vector<stk::mesh::Entity>& nodeList,
+void TpetraLinearSystem::resetRows(const stk::mesh::EntityVector& nodeList,
                                    const unsigned beginPos,
                                    const unsigned endPos,
                                    const double diag_value,

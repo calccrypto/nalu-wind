@@ -63,7 +63,7 @@ stk::mesh::Entity get_entity_master(const stk::mesh::BulkData& bulk,
 
 size_t get_neighbor_index(const std::vector<int>& neighborProcs, int proc);
 
-void sort_connections(std::vector<std::vector<stk::mesh::Entity> >& connections);
+void sort_connections(std::vector<stk::mesh::EntityVector >& connections);
 
 void add_to_length(LinSys::DeviceRowLengths& v_owned, LinSys::DeviceRowLengths& v_shared,
                    unsigned numDof, LinSys::LocalOrdinal lid_a, LinSys::LocalOrdinal maxOwnedRowId,

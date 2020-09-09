@@ -86,7 +86,7 @@ void fill_hex8_mesh(const std::string& meshSpec, stk::mesh::BulkData& bulk)
     stk::mesh::create_exposed_block_boundary_sides(bulk,  blockPart, {&surfPart});
 }
 
-void dump_mesh(stk::mesh::BulkData& bulk, std::vector<stk::mesh::FieldBase*> fields, std::string name)
+void dump_mesh(stk::mesh::BulkData& bulk, stk::mesh::FieldVector fields, std::string name)
 {
   stk::io::StkMeshIoBroker io(bulk.parallel());
   io.set_bulk_data(bulk);
@@ -151,7 +151,7 @@ stk::mesh::Entity create_one_element(
    bulk.modification_begin();
    for (unsigned k = 0u; k < all_faces.size(); ++k) {
      const int ordinal = bulk.begin_element_ordinals(all_faces[k])[0];
-     bulk.change_entity_parts(all_faces[k], {individualSurfaces[ordinal]}, stk::mesh::PartVector{});
+     bulk.change_entity_parts(all_faces[k], stk::mesh::PartVector{individualSurfaces[ordinal]}, stk::mesh::PartVector{});
    }
    bulk.modification_end();
 
@@ -630,4 +630,3 @@ void Hex8Mesh::check_discrete_laplacian(double exactLaplacian)
 }
 
 #endif
-

@@ -98,7 +98,7 @@ protected:
     for (unsigned k = 0u; k < all_faces.size(); ++k) {
       const int ordinal = bulk.begin_element_ordinals(all_faces[k])[0];
       bulk.change_entity_parts(
-        all_faces[k], {individualSurfaces[ordinal]}, stk::mesh::PartVector{});
+        all_faces[k], stk::mesh::PartVector{individualSurfaces[ordinal]}, stk::mesh::PartVector{});
     }
     bulk.modification_end();
 

@@ -96,8 +96,8 @@ public:
 
   std::vector<OversetInfo*> oversetInfoVec_;
 
-  std::vector<stk::mesh::Entity> holeNodes_;
-  std::vector<stk::mesh::Entity> fringeNodes_;
+  stk::mesh::EntityVector holeNodes_;
+  stk::mesh::EntityVector fringeNodes_;
 
   EntityList ngpHoleNodes_;
   EntityList ngpFringeNodes_;

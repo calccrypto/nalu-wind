@@ -231,7 +231,7 @@ public:
   }
 
   virtual void sumInto(
-    const std::vector<stk::mesh::Entity> &  /* sym_meshobj */,
+    const stk::mesh::EntityVector &  /* sym_meshobj */,
     std::vector<int> & /* scratchIds */,
     std::vector<double> & /* scratchVals */,
     const std::vector<double> & rhs,
@@ -270,7 +270,7 @@ public:
   virtual void writeSolutionToFile(const char *  /* filename */, bool  /* useOwned */=true) {}
 
   virtual void resetRows(
-    const std::vector<stk::mesh::Entity>&  /* nodeList */,
+    const stk::mesh::EntityVector&  /* nodeList */,
     const unsigned  /* beginPos */,
     const unsigned  /* endPos */,
     const double,
@@ -332,4 +332,3 @@ public:
 } // namespace unit_test_utils
 
 #endif /* UNITTESTLINEARSYSTEM_H */
-

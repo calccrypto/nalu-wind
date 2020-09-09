@@ -24,9 +24,9 @@ namespace stk { namespace mesh { class Part; } }
 namespace stk { namespace mesh { class BulkData; } }
 namespace stk { namespace mesh { class Selector; } }
 namespace stk { namespace mesh { struct Entity; } }
-namespace stk { namespace mesh { typedef std::vector<Part*> PartVector; } }
-namespace stk { namespace mesh { typedef std::vector<Entity> EntityVector; } }
-namespace stk { namespace mesh { typedef std::vector<EntityId> EntityIdVector; } }
+namespace stk { namespace mesh { typedef std::vector< Part * > PartVector; } }
+namespace stk { namespace mesh { typedef std::vector< Entity > EntityVector; } }
+namespace stk { namespace mesh { typedef std::vector< EntityId > EntityIdVector; } }
 namespace sierra { namespace nalu { struct ElementDescription; } }
 typedef stk::mesh::Field<double, stk::mesh::Cartesian>  VectorFieldType;
 

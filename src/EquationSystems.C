@@ -101,7 +101,7 @@ void EquationSystems::load(const YAML::Node & y_node)
     const YAML::Node y_solver
       = expect_map(y_equation_system, "solver_system_specification");
     solverSpecMap_ = y_solver.as<std::map<std::string, std::string> >();
-    
+
     const YAML::Node y_systems = expect_sequence(y_equation_system, "systems");
     {
       for ( size_t isystem = 0; isystem < y_systems.size(); ++isystem )
@@ -181,7 +181,7 @@ void EquationSystems::load(const YAML::Node & y_node)
         }
         else {
           if (!NaluEnv::self().parallel_rank()) {
-            std::cout << "Error: parsing at " << NaluParsingHelper::info(y_system) 
+            std::cout << "Error: parsing at " << NaluParsingHelper::info(y_system)
                       << "... at parent ... " << NaluParsingHelper::info(y_node) << std::endl;
           }
           throw std::runtime_error("parser error EquationSystem::load: unknown equation system type");
@@ -217,11 +217,11 @@ EquationSystems::get_solver_block_name(
   else {
     NaluEnv::self().naluOutputP0() << "Missed equation solver block specification for " << eqName << std::endl;
     throw std::runtime_error("issue with solver name mapping; none supplied");
-  }  
+  }
   return solverName;
 }
 
-void EquationSystems::breadboard() 
+void EquationSystems::breadboard()
 {
   // nothing as of yet
 }
@@ -237,7 +237,7 @@ EquationSystems::register_nodal_fields(
   const std::vector<std::string> targetNames)
 {
   stk::mesh::MetaData &meta_data = realm_.meta_data();
-  
+
   for ( size_t itarget = 0; itarget < targetNames.size(); ++itarget ) {
     stk::mesh::Part *targetPart = meta_data.get_part(targetNames[itarget]);
     if ( NULL == targetPart ) {
@@ -252,7 +252,7 @@ EquationSystems::register_nodal_fields(
     }
   }
 }
-  
+
 //--------------------------------------------------------------------------
 //-------- register_edge_fields --------------------------------------------
 //--------------------------------------------------------------------------
@@ -261,7 +261,7 @@ EquationSystems::register_edge_fields(
   const std::vector<std::string> targetNames)
 {
   stk::mesh::MetaData &meta_data = realm_.meta_data();
-  
+
   for ( size_t itarget = 0; itarget < targetNames.size(); ++itarget ) {
     stk::mesh::Part *targetPart = meta_data.get_part(targetNames[itarget]);
     if ( NULL == targetPart ) {
@@ -286,7 +286,7 @@ EquationSystems::register_element_fields(
   stk::mesh::MetaData &meta_data = realm_.meta_data();
   ScalarFieldType& elemVolume = meta_data.declare_field<ScalarFieldType>(
     stk::topology::ELEMENT_RANK, "element_volume");
-  
+
   for ( size_t itarget = 0; itarget < targetNames.size(); ++itarget ) {
     stk::mesh::Part *targetPart = meta_data.get_part(targetNames[itarget]);
     if ( NULL == targetPart ) {
@@ -306,7 +306,7 @@ EquationSystems::register_element_fields(
     }
   }
 }
-  
+
 //--------------------------------------------------------------------------
 //-------- register_interior_algorithm -------------------------------------
 //--------------------------------------------------------------------------
@@ -315,7 +315,7 @@ EquationSystems::register_interior_algorithm(
   const std::vector<std::string> targetNames)
 {
   stk::mesh::MetaData &meta_data = realm_.meta_data();
-  
+
   for ( size_t itarget = 0; itarget < targetNames.size(); ++itarget ) {
     stk::mesh::Part *targetPart = meta_data.get_part(targetNames[itarget]);
     if ( NULL == targetPart ) {
@@ -326,7 +326,7 @@ EquationSystems::register_interior_algorithm(
       if( stk::topology::ELEMENT_RANK != targetPart->primary_entity_rank() ) {
         throw std::runtime_error("Sorry, parts need to be elements.. " + targetNames[itarget]);
       }
-      
+
       realm_.register_interior_algorithm(targetPart);
       EquationSystemVector::iterator ii;
       for( ii=equationSystemVector_.begin(); ii!=equationSystemVector_.end(); ++ii )
@@ -334,7 +334,7 @@ EquationSystems::register_interior_algorithm(
     }
   }
 }
-  
+
 //--------------------------------------------------------------------------
 //-------- register_wall_bc ------------------------------------------------
 //--------------------------------------------------------------------------
@@ -351,8 +351,8 @@ EquationSystems::register_wall_bc(
   }
   else {
     // found the part
-    const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+    const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i )
     {
       ThrowRequire(*i != nullptr);
@@ -388,8 +388,8 @@ EquationSystems::register_inflow_bc(
   }
   else {
     // found the part
-    const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+    const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i )
     {
       stk::mesh::Part * const part = *i ;
@@ -401,7 +401,7 @@ EquationSystems::register_inflow_bc(
       else {
         realm_.register_inflow_bc(part, the_topo);
         EquationSystemVector::iterator ii;
-        for( ii=equationSystemVector_.begin(); ii!=equationSystemVector_.end(); ++ii )       
+        for( ii=equationSystemVector_.begin(); ii!=equationSystemVector_.end(); ++ii )
           (*ii)->register_inflow_bc(part, the_topo, inflowBCData);
       }
     }
@@ -424,8 +424,8 @@ EquationSystems::register_open_bc(
   }
   else {
     // found the part
-    const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+    const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i )
     {
       stk::mesh::Part * const part = *i ;
@@ -460,8 +460,8 @@ EquationSystems::register_symmetry_bc(
   }
   else {
     // found the part
-    const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+    const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i )
     {
       stk::mesh::Part * const part = *i ;
@@ -497,8 +497,8 @@ EquationSystems::register_abltop_bc(
   }
   else {
     // found the part
-    const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+    const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i )
     {
       stk::mesh::Part * const part = *i ;
@@ -540,8 +540,8 @@ EquationSystems::register_periodic_bc(
   }
   else {
     // error check on size of subsets
-    const std::vector<stk::mesh::Part*> & masterMeshParts = masterMeshPart->subsets();
-    const std::vector<stk::mesh::Part*> & slaveMeshParts = slaveMeshPart->subsets();
+    const stk::mesh::PartVector & masterMeshParts = masterMeshPart->subsets();
+    const stk::mesh::PartVector & slaveMeshParts = slaveMeshPart->subsets();
 
     if ( masterMeshParts.size() != slaveMeshParts.size())
       NaluEnv::self().naluOutputP0() << "Mesh part subsets for master slave do not match in size" << std::endl;
@@ -571,18 +571,18 @@ EquationSystems::register_non_conformal_bc(
   for ( size_t k = 0; k < nonConformalBCData.currentPartNameVec_.size(); ++k ) {
     stk::mesh::Part *currentMeshPart = meta_data.get_part(nonConformalBCData.currentPartNameVec_[k]);
     if ( NULL == currentMeshPart) {
-      NaluEnv::self().naluOutputP0() << "Sorry, no part name found by the name " 
+      NaluEnv::self().naluOutputP0() << "Sorry, no part name found by the name "
                                      << nonConformalBCData.currentPartNameVec_[k] << std::endl;
     }
     currentMeshPartVec.push_back(currentMeshPart);
   }
-  
+
   // extract opposing part vector
   stk::mesh::PartVector opposingMeshPartVec;
   for ( size_t k = 0; k < nonConformalBCData.opposingPartNameVec_.size(); ++k ) {
     stk::mesh::Part *opposingMeshPart = meta_data.get_part(nonConformalBCData.opposingPartNameVec_[k]);
     if ( NULL == opposingMeshPart) {
-      NaluEnv::self().naluOutputP0() << "Sorry, no part name found by the name " 
+      NaluEnv::self().naluOutputP0() << "Sorry, no part name found by the name "
                                      << nonConformalBCData.opposingPartNameVec_[k] << std::endl;
     }
     opposingMeshPartVec.push_back(opposingMeshPart);
@@ -590,12 +590,12 @@ EquationSystems::register_non_conformal_bc(
 
   // set up the non-conformal bc, e.g., manager, parts, etc.
   realm_.setup_non_conformal_bc(currentMeshPartVec, opposingMeshPartVec, nonConformalBCData);
-  
+
   // subset the current part for current part explosed surface field registration and algorithm creation
   for ( size_t k = 0; k < currentMeshPartVec.size(); ++k ) {
-    
-    const std::vector<stk::mesh::Part*> & mesh_parts = currentMeshPartVec[k]->subsets();
-    for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+
+    const stk::mesh::PartVector & mesh_parts = currentMeshPartVec[k]->subsets();
+    for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
          i != mesh_parts.end(); ++i ) {
       stk::mesh::Part * const part = *i ;
       const stk::topology the_topo = part->topology();
@@ -609,7 +609,7 @@ EquationSystems::register_non_conformal_bc(
         for( ii=equationSystemVector_.begin(); ii!=equationSystemVector_.end(); ++ii )
           (*ii)->register_non_conformal_bc(part, the_topo);
       }
-    } 
+    }
   }
 }
 
@@ -647,8 +647,8 @@ EquationSystems::register_surface_pp_algorithm(
     }
     else {
       // found the part
-      const std::vector<stk::mesh::Part*> & mesh_parts = targetPart->subsets();
-      for( std::vector<stk::mesh::Part*>::const_iterator i = mesh_parts.begin();
+      const stk::mesh::PartVector & mesh_parts = targetPart->subsets();
+      for( stk::mesh::PartVector::const_iterator i = mesh_parts.begin();
           i != mesh_parts.end(); ++i )
       {
         stk::mesh::Part * const part = *i ;
@@ -790,7 +790,7 @@ EquationSystems::solve_and_update()
     if ( !systemConverged )
       overallConvergence = false;
   }
-  
+
   return overallConvergence;
 }
 

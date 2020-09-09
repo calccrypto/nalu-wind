@@ -149,7 +149,7 @@ public:
   GenericFieldType *exposedAreaVec_;
   int imax_, jmax_, kmax_;
   std::vector<double> xInflowWeight_, yInflowWeight_;
-  std::vector<stk::mesh::Entity> nodeMapSamp_, nodeMapBC_, nodeMapM1_,
+  stk::mesh::EntityVector nodeMapSamp_, nodeMapBC_, nodeMapM1_,
                                  nodeMapXInflow_, nodeMapYInflow_;
   std::vector<int> indexMapSampGlobal_, indexMapBC_, sampleDistrib_, displ_,
                    horizBC_;

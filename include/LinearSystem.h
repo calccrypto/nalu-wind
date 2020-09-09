@@ -109,7 +109,7 @@ public:
    *  See the documentation/implementation of
    *  sierra::nalu::FixPressureAtNodeAlgorithm for an example of this use case.
    */
-  virtual void buildDirichletNodeGraph(const std::vector<stk::mesh::Entity>&) {}
+  virtual void buildDirichletNodeGraph(const stk::mesh::EntityVector&) {}
   virtual void buildDirichletNodeGraph(const stk::mesh::NgpMesh::ConnectedNodes) {}
 
   // Matrix Assembly
@@ -132,7 +132,7 @@ public:
     const char * trace_tag) = 0;
 
   virtual void sumInto(
-    const std::vector<stk::mesh::Entity> & sym_meshobj,
+    const stk::mesh::EntityVector & sym_meshobj,
     std::vector<int> &scratchIds,
     std::vector<double> &scratchVals,
     const std::vector<double> & rhs,
@@ -154,7 +154,7 @@ public:
    *  @param endPos Terminating index (1 for scalar quantities; nDim for vectors)
    */
   virtual void resetRows(
-    const std::vector<stk::mesh::Entity>& nodeList,
+    const stk::mesh::EntityVector& nodeList,
     const unsigned beginPos,
     const unsigned endPos,
     const double diag_value = 0.0,

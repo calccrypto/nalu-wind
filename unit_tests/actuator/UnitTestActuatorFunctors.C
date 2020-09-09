@@ -263,7 +263,7 @@ TEST_F(ActuatorFunctorTests, NGP_testSpreadForces)
   const int numCoarse = coarseElems.extent_int(0);
 
   // make sure local search results get non-zero source term
-  std::vector<stk::mesh::Entity> nodesMatch;
+  stk::mesh::EntityVector nodesMatch;
 
   for (int i = 0; i < numCoarse; ++i) {
     const stk::mesh::Entity elem =

@@ -71,8 +71,8 @@ public:
   std::vector<int> generateNewIds_;
   std::vector<Coordinates> tipCoordinates_;
   std::vector<Coordinates> tailCoordinates_;
-  std::vector<std::vector<stk::mesh::Entity> > nodeVector_;
-  std::vector<stk::mesh::Part *> part_;
+  std::vector<stk::mesh::EntityVector > nodeVector_;
+  stk::mesh::PartVector part_;
 
   // variables for sample planes
   bool isSamplePlane_;  

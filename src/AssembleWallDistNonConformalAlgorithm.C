@@ -59,7 +59,7 @@ AssembleWallDistNonConformalAlgorithm::execute()
   std::vector<double> rhs;
   std::vector<int> scratchIds;
   std::vector<double> scratchVals;
-  std::vector<stk::mesh::Entity> connected_nodes;
+  stk::mesh::EntityVector connected_nodes;
 
   std::vector<double> ws_c_gen_shpf;
   std::vector<double> ws_o_gen_shpf;

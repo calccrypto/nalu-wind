@@ -20,8 +20,8 @@ namespace stk {
     class MetaData;
     class Part;
     class Bucket;
-    typedef std::vector<Part*> PartVector;
-    typedef std::vector<Bucket*> BucketVector;
+    typedef std::vector< Part * > PartVector;
+    typedef std::vector< Bucket * > BucketVector;
   }
 }
 

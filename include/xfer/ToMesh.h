@@ -31,7 +31,7 @@
 namespace stk {
 namespace mesh {
 class Part;
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part * > PartVector;
 class MetaData;
 class BulkData;
 }

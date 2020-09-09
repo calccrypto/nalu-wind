@@ -90,7 +90,7 @@ public:
     const char * trace_tag);
 
   void sumInto(
-    const std::vector<stk::mesh::Entity> & entities,
+    const stk::mesh::EntityVector & entities,
     std::vector<int> &scratchIds,
     std::vector<double> &scratchVals,
     const std::vector<double> & rhs,
@@ -112,7 +112,7 @@ public:
    *  @param endPos Terminating index (1 for scalar quantities; nDim for vectors)
    */
   virtual void resetRows(
-    const std::vector<stk::mesh::Entity>& nodeList,
+    const stk::mesh::EntityVector& nodeList,
     const unsigned beginPos,
     const unsigned endPos,
     const double diag_value = 0.0,
@@ -218,19 +218,19 @@ private:
 
   void checkError( const int /* err_code */, const char * /* msg */) {}
 
-  void compute_send_lengths(const std::vector<stk::mesh::Entity>& rowEntities,
-         const std::vector<std::vector<stk::mesh::Entity> >& connections,
+  void compute_send_lengths(const stk::mesh::EntityVector& rowEntities,
+         const std::vector<stk::mesh::EntityVector >& connections,
                             const std::vector<int>& neighborProcs,
                             stk::CommNeighbors& commNeighbors);
 
-  void compute_graph_row_lengths(const std::vector<stk::mesh::Entity>& rowEntities,
-         const std::vector<std::vector<stk::mesh::Entity> >& connections,
+  void compute_graph_row_lengths(const stk::mesh::EntityVector& rowEntities,
+         const std::vector<stk::mesh::EntityVector >& connections,
                                  LinSys::RowLengths& sharedNotOwnedRowLengths,
                                  LinSys::RowLengths& locallyOwnedRowLengths,
                                  stk::CommNeighbors& commNeighbors);
 
-  void insert_graph_connections(const std::vector<stk::mesh::Entity>& rowEntities,
-         const std::vector<std::vector<stk::mesh::Entity> >& connections,
+  void insert_graph_connections(const stk::mesh::EntityVector& rowEntities,
+         const std::vector<stk::mesh::EntityVector >& connections,
                                 LocalGraphArrays& locallyOwnedGraph,
                                 LocalGraphArrays& sharedNotOwnedGraph);
 
@@ -243,8 +243,8 @@ private:
   void checkForNaN(bool useOwned);
   bool checkForZeroRow(bool useOwned, bool doThrow, bool doPrint=false);
 
-  std::vector<stk::mesh::Entity> ownedAndSharedNodes_;
-  std::vector<std::vector<stk::mesh::Entity> > connections_;
+  stk::mesh::EntityVector ownedAndSharedNodes_;
+  std::vector<stk::mesh::EntityVector > connections_;
   std::vector<GlobalOrdinal> totalGids_;
   std::set<std::pair<int,GlobalOrdinal> > ownersAndGids_;
   std::vector<int> sharedPids_;

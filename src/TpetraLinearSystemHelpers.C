@@ -140,9 +140,9 @@ size_t get_neighbor_index(const std::vector<int>& neighborProcs, int proc)
     return neighborIndex;
 }
 
-void sort_connections(std::vector<std::vector<stk::mesh::Entity> >& connections)
+void sort_connections(std::vector<stk::mesh::EntityVector >& connections)
 {
-  for(std::vector<stk::mesh::Entity>& vec : connections) {
+  for(stk::mesh::EntityVector& vec : connections) {
     std::sort(vec.begin(), vec.end());
   }
 }

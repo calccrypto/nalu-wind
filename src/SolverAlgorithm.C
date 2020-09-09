@@ -28,7 +28,7 @@ inline
 void fix_overset_rows(
   const stk::mesh::MetaData& meta,
   const size_t nDim,
-  const std::vector<stk::mesh::Entity>& entities,
+  const stk::mesh::EntityVector& entities,
   std::vector<double>& rhs,
   std::vector<double>& lhs)
 {
@@ -149,7 +149,7 @@ SolverAlgorithm::SolverAlgorithm(
 //--------------------------------------------------------------------------
 void
 SolverAlgorithm::apply_coeff(
-  const std::vector<stk::mesh::Entity> & sym_meshobj,
+  const stk::mesh::EntityVector & sym_meshobj,
   std::vector<int> &scratchIds,
   std::vector<double> &scratchVals,
   std::vector<double> & rhs,

@@ -76,7 +76,7 @@ public:
   AlgorithmDriver *sstMaxLengthScaleAlgDriver_;
 
   // saved of mesh parts that are for wall bcs
-  std::vector<stk::mesh::Part *> wallBcPart_;
+  stk::mesh::PartVector wallBcPart_;
 
   bool resetTAMSAverages_;     
 };

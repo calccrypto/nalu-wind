@@ -76,8 +76,8 @@ AssembleContinuityNonConformalSolverAlgorithm::AssembleContinuityNonConformalSol
 
   coordinates_ = meta_data.get_field<VectorFieldType>(stk::topology::NODE_RANK, realm_.get_coordinates_name());
   density_ = meta_data.get_field<ScalarFieldType>(stk::topology::NODE_RANK, "density");
-  exposedAreaVec_ = meta_data.get_field<GenericFieldType>(meta_data.side_rank(), "exposed_area_vector");  
-  
+  exposedAreaVec_ = meta_data.get_field<GenericFieldType>(meta_data.side_rank(), "exposed_area_vector");
+
   // what do we need ghosted for this alg to work?
   ghostFieldVec_.push_back(pressure_);
   ghostFieldVec_.push_back(Gjp_);
@@ -126,8 +126,8 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
   std::vector<double> rhs;
   std::vector<int> scratchIds;
   std::vector<double> scratchVals;
-  std::vector<stk::mesh::Entity> connected_nodes;
- 
+  stk::mesh::EntityVector connected_nodes;
+
   // ip values; both boundary and opposing surface
   std::vector<double> currentIsoParCoords(nDim);
   std::vector<double> opposingIsoParCoords(nDim);
@@ -153,7 +153,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
   // interpolate nodal values to point-in-elem
   const int sizeOfScalarField = 1;
   const int sizeOfVectorField = nDim;
- 
+
   // pointers to fixed values
   double *p_cNx = &cNx[0];
   double *p_oNx = &oNx[0];
@@ -202,7 +202,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
 
     // extract vector of DgInfo
     std::vector<std::vector<DgInfo *> > &dgInfoVec = (*ii)->dgInfoVec_;
-    
+
     std::vector<std::vector<DgInfo*> >::iterator idg;
     for( idg=dgInfoVec.begin(); idg!=dgInfoVec.end(); ++idg ) {
 
@@ -222,16 +222,16 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         const int opposingFaceOrdinal = dgInfo->opposingFaceOrdinal_;
 
         // master element; face and volume
-        MasterElement * meFCCurrent = dgInfo->meFCCurrent_; 
+        MasterElement * meFCCurrent = dgInfo->meFCCurrent_;
         MasterElement * meFCOpposing = dgInfo->meFCOpposing_;
-        MasterElement * meSCSCurrent = dgInfo->meSCSCurrent_; 
+        MasterElement * meSCSCurrent = dgInfo->meSCSCurrent_;
         MasterElement * meSCSOpposing = dgInfo->meSCSOpposing_;
-        
+
         // local ip, ordinals, etc
         const int currentGaussPointId = dgInfo->currentGaussPointId_;
         currentIsoParCoords = dgInfo->currentIsoParCoords_;
         opposingIsoParCoords = dgInfo->opposingIsoParCoords_;
-        
+
         // mapping from ip to nodes for this ordinal
         const int *ipNodeMap = meSCSCurrent->ipNodeMap(currentFaceOrdinal);
 
@@ -250,7 +250,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         scratchIds.resize(rhsSize);
         scratchVals.resize(rhsSize);
         connected_nodes.resize(totalNodes);
-        
+
         // algorithm related; face
         ws_c_pressure.resize(currentNodesPerFace);
         ws_o_pressure.resize(opposingNodesPerFace);
@@ -266,7 +266,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         ws_o_coordinates.resize(opposingNodesPerFace*nDim);
         ws_c_general_shape_function.resize(currentNodesPerFace);
         ws_o_general_shape_function.resize(opposingNodesPerFace);
-        
+
         // algorithm related; element; dndx will be at a single gauss point
         ws_c_elem_pressure.resize(currentNodesPerElement);
         ws_o_elem_pressure.resize(opposingNodesPerElement);
@@ -280,7 +280,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         // pointers
         double *p_lhs = &lhs[0];
         double *p_rhs = &rhs[0];
-        
+
         // face
         double *p_c_pressure = &ws_c_pressure[0];
         double *p_o_pressure = &ws_o_pressure[0];
@@ -306,7 +306,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         double *p_o_general_shape_function = &ws_o_general_shape_function[0];
         double *p_c_dndx = &ws_c_dndx[0];
         double *p_o_dndx = &ws_o_dndx[0];
-        
+
         // populate current face_node_ordinals
         const int *c_face_node_ordinals = meSCSCurrent->side_node_ordinals(currentFaceOrdinal);
 
@@ -314,7 +314,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         stk::mesh::Entity const* current_face_node_rels = bulk_data.begin_nodes(currentFace);
         const int current_num_face_nodes = bulk_data.num_nodes(currentFace);
         for ( int ni = 0; ni < current_num_face_nodes; ++ni ) {
-          stk::mesh::Entity node = current_face_node_rels[ni];          
+          stk::mesh::Entity node = current_face_node_rels[ni];
           // gather; scalar
           p_c_pressure[ni] = *stk::mesh::field_data(pressureNp1, node);
           p_c_density[ni] = *stk::mesh::field_data(*density_, node);
@@ -325,13 +325,13 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           const double *meshVelocity = stk::mesh::field_data(*meshVelocity_, node );
           const double *Gjp = stk::mesh::field_data(*Gjp_, node );
           for ( int i = 0; i < nDim; ++i ) {
-            const int offSet = i*current_num_face_nodes + ni; 
+            const int offSet = i*current_num_face_nodes + ni;
             p_c_velocity[offSet] = velocity[i];
             p_c_meshVelocity[offSet] = meshVelocity[i];
             p_c_Gjp[offSet] = Gjp[i] * p_c_udiag[ni];
           }
         }
-      
+
         // populate opposing face_node_ordinals
         const int *o_face_node_ordinals = meSCSOpposing->side_node_ordinals(opposingFaceOrdinal);
 
@@ -350,18 +350,18 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           const double *Gjp = stk::mesh::field_data(*Gjp_, node );
           const double *coords = stk::mesh::field_data(*coordinates_, node);
           for ( int i = 0; i < nDim; ++i ) {
-            const int offSet = i*opposing_num_face_nodes + ni;        
+            const int offSet = i*opposing_num_face_nodes + ni;
             p_o_velocity[offSet] = velocity[i];
             p_o_Gjp[offSet] = Gjp[i] * p_o_udiag[ni];
             p_o_coordinates[ni*nDim+i] = coords[i];
           }
         }
-        
+
         // gather current element data
         stk::mesh::Entity const* current_elem_node_rels = bulk_data.begin_nodes(currentElement);
         const int current_num_elem_nodes = bulk_data.num_nodes(currentElement);
         for ( int ni = 0; ni < current_num_elem_nodes; ++ni ) {
-          stk::mesh::Entity node = current_elem_node_rels[ni];          
+          stk::mesh::Entity node = current_elem_node_rels[ni];
           // set connected nodes
           connected_nodes[ni] = node;
           // gather; scalar
@@ -390,13 +390,13 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
             p_o_elem_coordinates[niNdim+i] = coords[i];
           }
         }
-        
+
         // compute opposing normal through master element call, not using oppoing exposed area
         meFCOpposing->general_normal(&opposingIsoParCoords[0], &p_o_coordinates[0], &p_oNx[0]);
-        
+
         // pointer to face data
         const double * c_areaVec = stk::mesh::field_data(*exposedAreaVec_, currentFace);
-        
+
         double c_amag = 0.0;
         for ( int j = 0; j < nDim; ++j ) {
           const double c_axj = c_areaVec[currentGaussPointId*nDim+j];
@@ -418,14 +418,14 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         // project from side to element; method deals with the -1:1 isInElement range to the proper underlying CVFEM range
         meSCSCurrent->sidePcoords_to_elemPcoords(currentFaceOrdinal, 1, &currentIsoParCoords[0], &currentElementIsoParCoords[0]);
         meSCSOpposing->sidePcoords_to_elemPcoords(opposingFaceOrdinal, 1, &opposingIsoParCoords[0], &opposingElementIsoParCoords[0]);
-        
+
         // compute dndx
         double scs_error = 0.0;
-        meSCSCurrent->general_face_grad_op(currentFaceOrdinal, &currentElementIsoParCoords[0], 
+        meSCSCurrent->general_face_grad_op(currentFaceOrdinal, &currentElementIsoParCoords[0],
                                            &p_c_elem_coordinates[0], &p_c_dndx[0], &ws_c_det_j[0], &scs_error);
-        meSCSOpposing->general_face_grad_op(opposingFaceOrdinal, &opposingElementIsoParCoords[0], 
+        meSCSOpposing->general_face_grad_op(opposingFaceOrdinal, &opposingElementIsoParCoords[0],
                                             &p_o_elem_coordinates[0], &p_o_dndx[0], &ws_o_det_j[0], &scs_error);
-        
+
         // current inverse length scale; can loop over face nodes to avoid "nodesOnFace" array
         double currentInverseLength = 0.0;
         for ( int ic = 0; ic < current_num_face_nodes; ++ic ) {
@@ -483,7 +483,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           &(dgInfo->currentIsoParCoords_[0]),
           &ws_c_pressure[0],
           &currentPressureBip);
-        
+
         double opposingPressureBip = 0.0;
         meFCOpposing->interpolatePoint(
           sizeOfScalarField,
@@ -524,14 +524,14 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           &(dgInfo->currentIsoParCoords_[0]),
           &ws_c_meshVelocity[0],
           &currentMeshVelocityBip[0]);
-        
+
         // projected nodal gradient
         meFCCurrent->interpolatePoint(
           sizeOfVectorField,
           &(dgInfo->currentIsoParCoords_[0]),
           &ws_c_Gjp[0],
           &currentGjpBip[0]);
-        
+
         meFCOpposing->interpolatePoint(
           sizeOfVectorField,
           &(dgInfo->opposingIsoParCoords_[0]),
@@ -545,7 +545,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           &(dgInfo->currentIsoParCoords_[0]),
           &ws_c_density[0],
           &currentDensityBip);
-        
+
         double opposingDensityBip = 0.0;
         meFCOpposing->interpolatePoint(
           sizeOfScalarField,
@@ -557,7 +557,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         for ( int ni = 0; ni < current_num_face_nodes; ++ni ) {
           const double density = p_c_density[ni];
           for ( int i = 0; i < nDim; ++i ) {
-            const int offSet = i*current_num_face_nodes + ni;        
+            const int offSet = i*current_num_face_nodes + ni;
             p_c_velocity[offSet] *= density;
             p_c_meshVelocity[offSet] *= density;
           }
@@ -567,7 +567,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         for ( int ni = 0; ni < opposing_num_face_nodes; ++ni ) {
           const double density = p_o_density[ni];
           for ( int i = 0; i < nDim; ++i ) {
-            const int offSet = i*opposing_num_face_nodes + ni;        
+            const int offSet = i*opposing_num_face_nodes + ni;
             p_o_velocity[offSet] *= density;
           }
         }
@@ -578,7 +578,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           &(dgInfo->currentIsoParCoords_[0]),
           &ws_c_velocity[0],
           &currentRhoVelocityBip[0]);
-        
+
         meFCOpposing->interpolatePoint(
           sizeOfVectorField,
           &(dgInfo->opposingIsoParCoords_[0]),
@@ -597,7 +597,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           p_lhs[p] = 0.0;
         for ( int p = 0; p < rhsSize; ++p )
           p_rhs[p] = 0.0;
-                
+
         const double projTimeScaleIp = 0.5*(curProjTScaleBip + oppProjTScaleBip);
         const double penaltyIp = projTimeScaleIp*0.5*(currentInverseLength + opposingInverseLength);
 
@@ -614,7 +614,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         }
 
         const double mdot = (ncFlux - includePstab_*ncPstabFlux + penaltyIp*(currentPressureBip - opposingPressureBip))*c_amag;
-        
+
         // form residual
         const int nn = ipNodeMap[currentGaussPointId];
         p_rhs[nn] -= mdot / tauScale;
@@ -622,7 +622,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
         // set-up row for matrix
         const int rowR = nn*totalNodes;
         double lhsFac = penaltyIp*c_amag / tauScale;
-        
+
         // sensitivities; current face (penalty); use general shape function for this single ip
         meFCCurrent->general_shape_fcn(1, &currentIsoParCoords[0], &ws_c_general_shape_function[0]);
         for ( int ic = 0; ic < currentNodesPerFace; ++ic ) {
@@ -630,7 +630,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           const double r = p_c_general_shape_function[ic];
           p_lhs[rowR+icnn] += r*lhsFac;
         }
-        
+
         // sensitivities; current element (diffusion)
         for ( int ic = 0; ic < currentNodesPerElement; ++ic ) {
           const int offSetDnDx = ic*nDim; // single intg. point
@@ -650,7 +650,7 @@ AssembleContinuityNonConformalSolverAlgorithm::execute()
           const double r = p_o_general_shape_function[ic];
           p_lhs[rowR+icnn+currentNodesPerElement] -= r*lhsFac * projTimeScaleIp / tauScale;
         }
-        
+
         // sensitivities; opposing element (diffusion)
         for ( int ic = 0; ic < opposingNodesPerElement; ++ic ) {
           const int offSetDnDx = ic*nDim; // single intg. point

@@ -307,7 +307,7 @@ public:
   virtual void post_converged_work() {}
 
   virtual void save_diagonal_term(
-    const std::vector<stk::mesh::Entity>&,
+    const stk::mesh::EntityVector&,
     const std::vector<int>&,
     const std::vector<double>&
   ) {}

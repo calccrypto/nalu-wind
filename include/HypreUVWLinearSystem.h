@@ -55,7 +55,7 @@ public:
    *
    *  \sa sierra::nalu::FixPressureAtNodeAlgorithm
    */
-  virtual void buildDirichletNodeGraph(const std::vector<stk::mesh::Entity>&);
+  virtual void buildDirichletNodeGraph(const stk::mesh::EntityVector&);
   virtual void buildDirichletNodeGraph(const stk::mesh::NgpMesh::ConnectedNodes);
 
   sierra::nalu::CoeffApplier* get_coeff_applier();
@@ -180,7 +180,7 @@ public:
    *  @param[in] trace_tag Debugging message
    */
   virtual void sumInto(
-    const std::vector<stk::mesh::Entity> & sym_meshobj,
+    const stk::mesh::EntityVector & sym_meshobj,
     std::vector<int> &scratchIds,
     std::vector<double> &scratchVals,
     const std::vector<double> & rhs,

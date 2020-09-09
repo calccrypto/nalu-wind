@@ -182,7 +182,7 @@ public:
    virtual void compute_projected_nodal_gradient();
 
   virtual void save_diagonal_term(
-    const std::vector<stk::mesh::Entity>&,
+    const stk::mesh::EntityVector&,
     const std::vector<int>&,
     const std::vector<double>&
   ) override;
@@ -230,8 +230,8 @@ public:
   double firstPNGResidual_;
 
   // saved of mesh parts that are not to be projected
-  std::vector<stk::mesh::Part *> notProjectedPart_;
-  std::array<std::vector<stk::mesh::Part*>,3> notProjectedDir_;
+  stk::mesh::PartVector notProjectedPart_;
+  std::array<stk::mesh::PartVector,3> notProjectedDir_;
 
   ScalarFieldType* get_diagonal_field() override { return Udiag_; }
 

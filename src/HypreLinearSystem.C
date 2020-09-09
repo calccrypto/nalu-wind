@@ -571,7 +571,7 @@ HypreLinearSystem::buildOversetNodeGraph(
   stk::mesh::BulkData & bulkData = realm_.bulk_data();
   beginLinearSystemConstruction();
 
-  std::vector<stk::mesh::Entity> entities;
+  stk::mesh::EntityVector entities;
   std::vector<HypreIntType> hids;
 
   // Mark all the fringe nodes as skipped so that sumInto doesn't add into these
@@ -669,7 +669,7 @@ HypreLinearSystem::buildDirichletNodeGraph(
 
 void
 HypreLinearSystem::buildDirichletNodeGraph(
-  const std::vector<stk::mesh::Entity>& nodeList)
+  const stk::mesh::EntityVector& nodeList)
 {
 #ifdef HYPRE_LINEAR_SYSTEM_TIMER
   /* record the start time */
@@ -1620,7 +1620,7 @@ HypreLinearSystem::HypreLinSysCoeffApplier::operator()(
 }
 
 void
-HypreLinearSystem::HypreLinSysCoeffApplier::sum_into_nonNGP(const std::vector<stk::mesh::Entity>& entities,
+HypreLinearSystem::HypreLinSysCoeffApplier::sum_into_nonNGP(const stk::mesh::EntityVector& entities,
 							    const std::vector<double>& rhs,
 							    const std::vector<double>& lhs) {
 
@@ -2250,7 +2250,7 @@ HypreLinearSystem::sumInto(
 
 void
 HypreLinearSystem::sumInto(
-  const std::vector<stk::mesh::Entity>& entities,
+  const stk::mesh::EntityVector& entities,
   std::vector<int>&  /* scratchIds */,
   std::vector<double>& /* scratchVals */,
   const std::vector<double>& rhs,

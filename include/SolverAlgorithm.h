@@ -92,7 +92,7 @@ protected:
 
   // Need to find out whether this ever gets called inside a modification cycle.
   void apply_coeff(
-    const std::vector<stk::mesh::Entity> & sym_meshobj,
+    const stk::mesh::EntityVector & sym_meshobj,
     std::vector<int> &scratchIds,
     std::vector<double> &scratchVals,
     std::vector<double> &rhs,

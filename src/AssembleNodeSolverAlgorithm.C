@@ -78,7 +78,7 @@ AssembleNodeSolverAlgorithm::execute()
   std::vector<double> rhs(rhsSize);
   std::vector<int> scratchIds(rhsSize);
   std::vector<double> scratchVals(rhsSize);
-  std::vector<stk::mesh::Entity> connected_nodes(1);
+  stk::mesh::EntityVector connected_nodes(1);
 
   // pointers
   double *p_lhs = &lhs[0];

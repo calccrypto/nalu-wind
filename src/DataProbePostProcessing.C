@@ -93,7 +93,7 @@ DataProbePostProcessing::DataProbePostProcessing(
   : realm_(realm),
     outputFreq_(10),
     writeCoords_(true),
-    gzLevel_(0), 
+    gzLevel_(0),
     w_(26),
     searchMethodName_("none"),
     searchTolerance_(1.0e-4),
@@ -135,7 +135,7 @@ DataProbePostProcessing::load(
 
     // Set the output format for probes
     std::vector<std::string> formatList;
-    const YAML::Node y_formats = y_dataProbe["output_format"]; 
+    const YAML::Node y_formats = y_dataProbe["output_format"];
     if (y_formats) {
       if (y_formats.Type() == YAML::NodeType::Sequence) {  // Provided as as sequence
 	for (size_t ioutput = 0; ioutput < y_formats.size(); ++ioutput) {
@@ -144,11 +144,11 @@ DataProbePostProcessing::load(
 	  formatList.push_back(formatName);
 	}
       } else  { // Not provided as a sequence, just one string
-	std::string formatName    = y_formats.as<std::string>() ;	
+	std::string formatName    = y_formats.as<std::string>() ;
 	formatList.push_back(formatName);
       }
     } else { // output_format not given at all, add the default ("text")
-      std::string formatName("text");	
+      std::string formatName("text");
       formatList.push_back(formatName);
     }
     // Go through and parse each format in formatList
@@ -206,7 +206,7 @@ DataProbePostProcessing::load(
 
         DataProbeInfo *probeInfo = new DataProbeInfo();
         probeSpec->dataProbeInfo_.push_back(probeInfo);
-        
+
         // name; will serve as the transfer name
         const YAML::Node theName = y_spec["name"];
         if ( theName )
@@ -226,7 +226,7 @@ DataProbePostProcessing::load(
             probeSpec->fromTargetNames_[i] = fromTargets[i].as<std::string>() ;
           }
         }
-        
+
         // extract the type of probe, e.g., line of site, plane, etc
         const YAML::Node y_loss = expect_sequence(y_spec, "line_of_site_specifications", true);
         const YAML::Node y_plane= expect_sequence(y_spec, "plane_specifications", true);
@@ -235,7 +235,7 @@ DataProbePostProcessing::load(
 
           // l-o-s is active..
           probeInfo->isLineOfSite_ = true;
-          
+
           // extract and save number of probes
           const int numProbes = probeInfo->numProbes_ + y_loss.size();
           probeInfo->numProbes_ = numProbes;
@@ -263,7 +263,7 @@ DataProbePostProcessing::load(
           // deal with processors... Distribute each probe over subsequent procs
           const int numProcs = NaluEnv::self().parallel_size();
           const int divProcProbe = std::max(numProcs/numProbes, numProcs);
-	  
+
           for (size_t ilos = 0; ilos < y_loss.size(); ilos++) {
             const YAML::Node y_los = y_loss[ilos] ;
 
@@ -300,7 +300,7 @@ DataProbePostProcessing::load(
               probeInfo->tailCoordinates_[ilos] = tailCoord.as<sierra::nalu::Coordinates>() ;
             else
               throw std::runtime_error("DataProbePostProcessing: lacking tail coordinates");
-        
+
           }
         }
 	if (y_plane) {
@@ -399,7 +399,7 @@ DataProbePostProcessing::load(
 	      probeInfo->offsetDir_[iplane+offset].y_ = 0.0;
 	      probeInfo->offsetDir_[iplane+offset].z_ = 0.0;
 	    }
-	    
+
             // coordinates; offset_spacings
             const YAML::Node offsetSpacings = y_planenode["offset_spacings"];
 	    if (offsetSpacings)
@@ -424,29 +424,29 @@ DataProbePostProcessing::load(
 	  //throw std::runtime_error("DataProbePostProcessing: done sample plane setup");
 
 	}
-       
+
 	if (probeInfo->numProbes_ < 1)
 	{
 	  throw std::runtime_error("DataProbePostProcessing: Need to have some specification included");
         }
-	
-        
+
+
         // extract the output variables
         const YAML::Node y_outputs = expect_sequence(y_spec, "output_variables", false);
         if (y_outputs) {
           for (size_t ioutput = 0; ioutput < y_outputs.size(); ++ioutput) {
             const YAML::Node y_output = y_outputs[ioutput];
-  
+
             // find the name, size and type
             const YAML::Node fieldNameNode = y_output["field_name"];
             const YAML::Node fieldSizeNode = y_output["field_size"];
-    
-            if ( !fieldNameNode ) 
+
+            if ( !fieldNameNode )
               throw std::runtime_error("DataProbePostProcessing::load() Sorry, field name must be provided");
-            
-            if ( !fieldSizeNode ) 
+
+            if ( !fieldSizeNode )
               throw std::runtime_error("DataProbePostProcessing::load() Sorry, field size must be provided");
-            
+
             // extract data
             std::string fieldName;
             int fieldSize;
@@ -488,11 +488,11 @@ DataProbePostProcessing::setup()
   for ( size_t idps = 0; idps < dataProbeSpecInfo_.size(); ++idps ) {
 
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
-    
+
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-      
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-      
+
       // loop over probes... one part per probe
       for ( int j = 0; j < probeInfo->numProbes_; ++j ) {
         // extract name
@@ -521,16 +521,16 @@ DataProbePostProcessing::setup()
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
 
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-          
+
       // loop over probes... register all fields within the ProbInfo on each part
       for ( int p = 0; p < probeInfo->numProbes_; ++p ) {
 
         // extract the part
         stk::mesh::Part *probePart = probeInfo->part_[p];
         // everyone needs coordinates to be registered
-        VectorFieldType *coordinates 
+        VectorFieldType *coordinates
           =  &(metaData.declare_field<VectorFieldType>(stk::topology::NODE_RANK, "coordinates"));
         stk::mesh::put_field_on_mesh(*coordinates, *probePart, nDim, nullptr);
         // now the general set of fields for this probe
@@ -549,7 +549,7 @@ DataProbePostProcessing::setup()
 void
 DataProbePostProcessing::initialize()
 {
-  // objective: generate the ids, declare the entity(s) and register the fields; 
+  // objective: generate the ids, declare the entity(s) and register the fields;
   // *** must be after populate_mesh() ***
   stk::mesh::BulkData &bulkData = realm_.bulk_data();
   stk::mesh::MetaData &metaData = realm_.meta_data();
@@ -565,9 +565,9 @@ DataProbePostProcessing::initialize()
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
 
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-          
+
       for ( int j = 0; j < probeInfo->numProbes_; ++j ) {
 
         // extract some things off of the probeInfo
@@ -576,22 +576,22 @@ DataProbePostProcessing::initialize()
         const int processorId  = probeInfo->processorId_[j];
         const bool generateNewIds = probeInfo->generateNewIds_[j];
 
-        // generate new ids; only if the part was 
+        // generate new ids; only if the part was
         std::vector<stk::mesh::EntityId> availableNodeIds(numPoints);
-        if ( generateNewIds > 0 ) 
+        if ( generateNewIds > 0 )
           bulkData.generate_new_ids(stk::topology::NODE_RANK, numPoints, availableNodeIds);
 
         // check to see if part has nodes on it already
-        if ( processorId == NaluEnv::self().parallel_rank()) {    
-          
+        if ( processorId == NaluEnv::self().parallel_rank()) {
+
           // set some data
           int checkNumPoints = 0;
           bool nodesExist = false;
-          std::vector<stk::mesh::Entity> &nodeVec = probeInfo->nodeVector_[j];
+          stk::mesh::EntityVector &nodeVec = probeInfo->nodeVector_[j];
 
           stk::mesh::Selector s_local_nodes
             = metaData.locally_owned_part() &stk::mesh::Selector(*probePart);
-          
+
           stk::mesh::BucketVector const& node_buckets = bulkData.get_buckets( stk::topology::NODE_RANK, s_local_nodes );
           for ( stk::mesh::BucketVector::const_iterator ib = node_buckets.begin() ;
                 ib != node_buckets.end() ; ++ib ) {
@@ -602,7 +602,7 @@ DataProbePostProcessing::initialize()
               nodesExist = true;
             }
           }
-          
+
           // check if nodes exists. If they do, did the number of points match?
           if ( nodesExist ) {
             if ( checkNumPoints != numPoints ) {
@@ -614,7 +614,7 @@ DataProbePostProcessing::initialize()
           else {
             // only declare entities on which these nodes parallel rank resides
             nodeVec.resize(numPoints);
-            
+
             // declare the entity on this rank (rank is determined by calling declare_entity on this rank)
             for (int i = 0; i < numPoints; ++i) {
               stk::mesh::Entity theNode = bulkData.declare_entity(stk::topology::NODE_RANK, availableNodeIds[i], *probePart);
@@ -625,9 +625,9 @@ DataProbePostProcessing::initialize()
       }
     }
   }
-  
+
   bulkData.modification_end();
-  
+
   // populate values for coord; probe stays the same place
   // FIXME: worry about mesh motion (if the probe moves around?)
   VectorFieldType *coordinates = metaData.get_field<VectorFieldType>(stk::topology::NODE_RANK, "coordinates");
@@ -638,23 +638,23 @@ DataProbePostProcessing::initialize()
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
 
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-          
+
       for ( int j = 0; j < probeInfo->numProbes_; ++j ) {
 
         // reference to the nodeVector
-        std::vector<stk::mesh::Entity> &nodeVec = probeInfo->nodeVector_[j];
-        
+        stk::mesh::EntityVector &nodeVec = probeInfo->nodeVector_[j];
+
 	// create line-of-site geometry
 	if (probeInfo->geomType_[j] == DataProbeGeomType::LINEOFSITE) {
         // populate the coordinates
         double dx[3] = {};
-        
+
         std::vector<double> tipC(nDim);
         tipC[0] = probeInfo->tipCoordinates_[j].x_;
         tipC[1] = probeInfo->tipCoordinates_[j].y_;
-        
+
         std::vector<double> tailC(nDim);
         tailC[0] = probeInfo->tailCoordinates_[j].x_;
         tailC[1] = probeInfo->tailCoordinates_[j].y_;
@@ -662,11 +662,11 @@ DataProbePostProcessing::initialize()
           tipC[2] = probeInfo->tipCoordinates_[j].z_;
           tailC[2] = probeInfo->tailCoordinates_[j].z_;
         }
-        
+
         const int numPoints = probeInfo->numPoints_[j];
         for ( int p = 0; p < nDim; ++p )
           dx[p] = (tipC[p] - tailC[p])/(double)(std::max(numPoints-1,1));
-        
+
         // now populate the coordinates; can use a simple loop rather than buckets
         for ( size_t n = 0; n < nodeVec.size(); ++n ) {
           stk::mesh::Entity node = nodeVec[n];
@@ -719,7 +719,7 @@ DataProbePostProcessing::initialize()
 	      coords[i] = corner[i] + indexi*dx[i] + indexj*dy[i] + OSspacing[planei]*OSdir[i];
 	    }
 	  }
-	  
+
 	}
       }
     }
@@ -763,7 +763,7 @@ DataProbePostProcessing::register_field(
   stk::mesh::MetaData &metaData,
   stk::mesh::Part *part)
 {
-  stk::mesh::FieldBase *toField 
+  stk::mesh::FieldBase *toField
     = &(metaData.declare_field< stk::mesh::Field<double, stk::mesh::SimpleArrayTag> >(stk::topology::NODE_RANK, fieldName));
   stk::mesh::put_field_on_mesh(*toField, *part, fieldSize, nullptr);
 }
@@ -779,9 +779,9 @@ DataProbePostProcessing::create_inactive_selector()
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
 
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-          
+
       // loop over probes... one part per probe
       for ( int j = 0; j < probeInfo->numProbes_; ++j ) {
         allTheParts_.push_back(probeInfo->part_[j]);
@@ -796,7 +796,7 @@ DataProbePostProcessing::create_inactive_selector()
 //--------------------------------------------------------------------------
 void
 DataProbePostProcessing::create_transfer()
-{  
+{
   stk::mesh::MetaData &metaData = realm_.meta_data();
 
   // create a [dummy] transfers
@@ -820,20 +820,20 @@ DataProbePostProcessing::create_transfer()
 
     // provide from/to parts
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
 
       // extract field names (homegeneous over all probes)
       for ( size_t j = 0; j < probeSpec->fromToName_.size(); ++j )
-        theTransfer->transferVariablesPairName_.push_back(std::make_pair(probeSpec->fromToName_[j].first, 
+        theTransfer->transferVariablesPairName_.push_back(std::make_pair(probeSpec->fromToName_[j].first,
                                                                          probeSpec->fromToName_[j].second));
-          
+
       // accumulate all of the From parts for this Specification
       for ( size_t j = 0; j < probeSpec->fromTargetNames_.size(); ++j ) {
         std::string fromTargetName = probeSpec->fromTargetNames_[j];
         stk::mesh::Part *fromTargetPart = metaData.get_part(fromTargetName);
         if ( NULL == fromTargetPart ) {
-          throw 
+          throw
             std::runtime_error("DataProbePostProcessing::create_transfer() Trouble with part, " + fromTargetName);
         }
         else {
@@ -850,7 +850,7 @@ DataProbePostProcessing::create_transfer()
 
   // okay, ready to call through Transfers to do the real work
   transfers_->initialize();
-}  
+}
 //--------------------------------------------------------------------------
 //-------- review ----------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -885,24 +885,24 @@ DataProbePostProcessing::execute()
   }
 
   if ( isOutput ) {
-    const double t1 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0;  
+    const double t1 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0;
     // execute and provide results...
     transfers_->execute();
-    const double t2 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0; 
+    const double t2 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0;
     if (useExo_) {
       provide_output_exodus(currentTime);
     }
     if (useText_) {
       provide_output_txt(currentTime);
     }
-    const double t3 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0; 
-    if (enablePerfTiming_) 
-      NaluEnv::self().naluOutputP0() << "DataProbePostProcessing::execute " 
+    const double t3 = enablePerfTiming_? NaluEnv::self().nalu_time() : 0.0;
+    if (enablePerfTiming_)
+      NaluEnv::self().naluOutputP0() << "DataProbePostProcessing::execute "
 				     << " transfer_time: "<<t2-t1
-				     << " output_time: "<<t3-t2      
+				     << " output_time: "<<t3-t2
 				     << " total_time: "<<t3-t1
 				     << std::endl;
-    
+
   }
 }
 
@@ -912,23 +912,23 @@ DataProbePostProcessing::execute()
 void
 DataProbePostProcessing::provide_output_txt(
   const double currentTime)
-{ 
+{
   NaluEnv::self().naluOutputP0() << "DataProbePostProcessing::Writing dataprobes..." << std::endl;
 
   stk::mesh::MetaData &metaData = realm_.meta_data();
-  VectorFieldType *coordinates 
+  VectorFieldType *coordinates
     = metaData.get_field<VectorFieldType>(stk::topology::NODE_RANK, "coordinates");
-  
+
   const int nDim = metaData.spatial_dimension();
 
   for ( size_t idps = 0; idps < dataProbeSpecInfo_.size(); ++idps ) {
 
     DataProbeSpecInfo *probeSpec = dataProbeSpecInfo_[idps];
-    
+
     for ( size_t k = 0; k < probeSpec->dataProbeInfo_.size(); ++k ) {
-    
+
       DataProbeInfo *probeInfo = probeSpec->dataProbeInfo_[k];
-          
+
       for ( int inp = 0; inp < probeInfo->numProbes_; ++inp ) {
 
 	if (probeInfo->geomType_[inp]==DataProbeGeomType::LINEOFSITE) {
@@ -939,26 +939,26 @@ DataProbePostProcessing::provide_output_txt(
         ss << processorId;
         const std::string fileName = probeInfo->partName_[inp] + "_" + ss.str() + ".dat";
         std::ofstream myfile;
-        if ( processorId == NaluEnv::self().parallel_rank()) {    
+        if ( processorId == NaluEnv::self().parallel_rank()) {
 
 	  // Get the path to the file name, and create any directories necessary
 	  boost::filesystem::path pathdir{fileName};
-	  if (pathdir.has_parent_path()) { 
-	    if (!boost::filesystem::exists(pathdir.parent_path().string())) 
+	  if (pathdir.has_parent_path()) {
+	    if (!boost::filesystem::exists(pathdir.parent_path().string()))
 	      {
-		try{ 
+		try{
 		  boost::filesystem::create_directories(pathdir.parent_path().string());
 		} catch(const boost::filesystem::filesystem_error& e) {
-		  NaluEnv::self().naluOutputP0() 
+		  NaluEnv::self().naluOutputP0()
 		    << "Error creating "<< pathdir.parent_path().string() <<std::endl;
-		  NaluEnv::self().naluOutputP0()  
+		  NaluEnv::self().naluOutputP0()
 		    << e.code().message()<<std::endl;
 		  throw std::runtime_error(e.code().message());
 		}
 	      }
 	  }
-          
-          // one banner per file 
+
+          // one banner per file
           const bool addBanner = std::ifstream(fileName.c_str()) ? false : true;
 
           myfile.open(fileName.c_str(), std::ios_base::app);
@@ -966,31 +966,31 @@ DataProbePostProcessing::provide_output_txt(
           // provide banner for current time, coordinates, field 1, field 2, etc
           if ( addBanner ) {
             myfile << "Time" << std::setw(w_);
-            
+
             for ( int jj = 0; jj < nDim; ++jj )
-              myfile << "coordinates[" << jj << "]" << std::setw(w_);          
-            
+              myfile << "coordinates[" << jj << "]" << std::setw(w_);
+
             for ( size_t ifi = 0; ifi < probeSpec->fieldInfo_.size(); ++ifi ) {
               const std::string fieldName = probeSpec->fieldInfo_[ifi].first;
               const int fieldSize = probeSpec->fieldInfo_[ifi].second;
-              
+
               for ( int jj = 0; jj < fieldSize; ++jj ) {
                 myfile << fieldName << "[" << jj << "]" << std::setw(w_);
-              } 
+              }
             }
-            
+
             // banner complete
             myfile << std::endl;
           }
 
           // reference to the nodeVector
-          std::vector<stk::mesh::Entity> &nodeVec = probeInfo->nodeVector_[inp];
-          
+          stk::mesh::EntityVector &nodeVec = probeInfo->nodeVector_[inp];
+
           // output in a single row
           for ( size_t inv = 0; inv < nodeVec.size(); ++inv ) {
             stk::mesh::Entity node = nodeVec[inv];
             double * theCoord = (double*)stk::mesh::field_data(*coordinates, node );
-            
+
             // always output time and coordinates
             myfile << std::left << std::setw(w_) << std::setprecision(precisionvar_) << currentTime << std::setw(w_);
             for ( int jj = 0; jj < nDim; ++jj ) {
@@ -1002,7 +1002,7 @@ DataProbePostProcessing::provide_output_txt(
               const std::string fieldName = probeSpec->fieldInfo_[ifi].first;
               const stk::mesh::FieldBase *theField = metaData.get_field(stk::topology::NODE_RANK, fieldName);
               double * theF = (double*)stk::mesh::field_data(*theField, node );
-               
+
               const int fieldSize = probeSpec->fieldInfo_[ifi].second;
               for ( int jj = 0; jj < fieldSize; ++jj ) {
                 myfile << theF[jj] << std::setw(w_);
@@ -1029,7 +1029,7 @@ DataProbePostProcessing::provide_output_txt(
 	    ss << std::setw(7)<<std::setfill('0')<<timeStepCount;
 	    ss <<"_"<<processorId;
 	          std::string fileName = probeInfo->partName_[inp] + "_" + ss.str() + ".dat";
-	    if ( processorId == NaluEnv::self().parallel_rank()) {    
+	    if ( processorId == NaluEnv::self().parallel_rank()) {
 
 	      const int N1 = probeInfo->edge1NumPoints_[inp];
 	      const int N2 = probeInfo->edge2NumPoints_[inp];
@@ -1045,15 +1045,15 @@ DataProbePostProcessing::provide_output_txt(
 
 	      // Get the path to the file name, and create any directories necessary
 	      boost::filesystem::path pathdir{fileName};
-	      if (pathdir.has_parent_path()) { 
-		if (!boost::filesystem::exists(pathdir.parent_path().string())) 
+	      if (pathdir.has_parent_path()) {
+		if (!boost::filesystem::exists(pathdir.parent_path().string()))
 		  {
-		    try{ 
+		    try{
 		      boost::filesystem::create_directories(pathdir.parent_path().string());
 		    } catch(const boost::filesystem::filesystem_error& e) {
-		      NaluEnv::self().naluOutputP0() 
+		      NaluEnv::self().naluOutputP0()
 			<< "Error creating "<< pathdir.parent_path().string() <<std::endl;
-		      NaluEnv::self().naluOutputP0()  
+		      NaluEnv::self().naluOutputP0()
 			<< e.code().message()<<std::endl;
 		      throw std::runtime_error(e.code().message());
 		    }
@@ -1061,13 +1061,13 @@ DataProbePostProcessing::provide_output_txt(
 	      }
 
 	      // ** Check to see if we need to add a coordinate file
-	      std::string coordFileName = 
+	      std::string coordFileName =
 		probeInfo->partName_[inp] + "_coordXYZ.dat";
 	      if (!printcoords) {
 		if ((0<gzlevel)&&(gzlevel<10)) coordFileName += ".gz";
 		const bool addCoordFile
 		  = std::ifstream(coordFileName.c_str()) ? false : true;
-		if (addCoordFile) { 
+		if (addCoordFile) {
 		  // -- Add the coordinate file
 		  boost::iostreams::filtering_streambuf<boost::iostreams::output> outstream;
 		  if ((0<gzlevel)&&(gzlevel<10)) {
@@ -1079,17 +1079,17 @@ DataProbePostProcessing::provide_output_txt(
 		  std::ostream myfile(&outstream);
 		  // -- output the header
 		  myfile << "#Time: "<< std::setprecision(precisionvar_) << currentTime << std::endl;
-		  myfile << "# ";		  
+		  myfile << "# ";
 		  myfile << std::setw(w_-1) << std::right << "Plane_Number"
 			 << std::setw(w_)   << std::right << "Index_j"
-			 << std::setw(w_)   << std::right << "Index_i"; 
+			 << std::setw(w_)   << std::right << "Index_i";
 		  for ( int jj = 0; jj < nDim; ++jj ) {
-		    myfile << std::setw(w_-2) << std::right << "coordinates[" << jj << "]" ;         
+		    myfile << std::setw(w_-2) << std::right << "coordinates[" << jj << "]" ;
 		  }
-		  myfile << '\n';  
+		  myfile << '\n';
 		  // -- Done with header
 		  // reference to the nodeVector
-		  std::vector<stk::mesh::Entity> &nodeVec = probeInfo->nodeVector_[inp];
+		  stk::mesh::EntityVector &nodeVec = probeInfo->nodeVector_[inp];
 		  // -- output indices and coordinates in a single row
 		  for ( size_t inv = 0; inv < nodeVec.size(); ++inv ) {
 		    stk::mesh::Entity node = nodeVec[inv];
@@ -1104,10 +1104,10 @@ DataProbePostProcessing::provide_output_txt(
 		    for ( int jj = 0; jj < nDim; ++jj ) {
 		      myfile << std::setprecision(precisionvar_) << theCoord[jj] << std::setw(w_);
 		    }
-		    myfile << '\n';  
+		    myfile << '\n';
 		  }
 
-		  boost::iostreams::close(outstream); 
+		  boost::iostreams::close(outstream);
 		  coordfile.close();
 		  // -- Done with the coordinate file
 		}
@@ -1121,7 +1121,7 @@ DataProbePostProcessing::provide_output_txt(
 	      filestring.reserve(5000000);
 
 	      if (!printcoords) coordfilestring="CoordinateFile: "+coordFileName;
-	      
+
 	      sprintf(buffer, "#Time: %18.12e %s\n#",currentTime, coordfilestring.c_str());
 	      filestring.append(buffer);
 	      if (printcoords)  {
@@ -1130,7 +1130,7 @@ DataProbePostProcessing::provide_output_txt(
 		  sprintf(buffer, " coordinates[%i]", jj);
 		  filestring.append(buffer);
 		}
-		
+
 	      }
 	      for ( size_t ifi = 0; ifi < probeSpec->fieldInfo_.size(); ++ifi ) {
 		const std::string fieldName = probeSpec->fieldInfo_[ifi].first;
@@ -1139,14 +1139,14 @@ DataProbePostProcessing::provide_output_txt(
 		  for ( int jj = 0; jj < fieldSize; ++jj ) {
 		    sprintf(buffer, " %s[%i]", fieldName.c_str(), jj);
 		    filestring.append(buffer);
-		  } 
+		  }
 		}
 	      }
 	      filestring += '\n';
 
 
 	      // Get some pointers to all of the data files
-	      std::vector<stk::mesh::FieldBase *> allFields(probeSpec->fieldInfo_.size());
+	      stk::mesh::FieldVector allFields(probeSpec->fieldInfo_.size());
 	      std::vector<size_t>      fieldSize;
 	      std::vector<std::string> allFieldNames;
 	      for ( size_t ifi=0; ifi < probeSpec->fieldInfo_.size(); ++ifi ) {
@@ -1157,8 +1157,8 @@ DataProbePostProcessing::provide_output_txt(
 	      }
 
 	      // reference to the nodeVector
-	      std::vector<stk::mesh::Entity> &nodeVec = probeInfo->nodeVector_[inp];
-          
+	      stk::mesh::EntityVector &nodeVec = probeInfo->nodeVector_[inp];
+
 	      // output in a single row
 	      for ( size_t inv = 0; inv < nodeVec.size(); ++inv ) {
 		stk::mesh::Entity node = nodeVec[inv];
@@ -1173,13 +1173,13 @@ DataProbePostProcessing::provide_output_txt(
 
 		  sprintf(buffer, "%18i %18i %18i",planei, indexj, indexi);
 		  filestring.append(buffer);
-		  
+
 		  // Output coordinates
 		  for ( int jj = 0; jj < nDim; ++jj ) {
 		    sprintf(buffer, " %12.5e",theCoord[jj]);
 		    filestring.append(buffer);
 		  }
-		} 
+		}
 		// now all of the other fields required
 		for ( size_t ifi = 0; ifi < probeSpec->fieldInfo_.size(); ++ifi ) {
 
@@ -1223,6 +1223,6 @@ DataProbePostProcessing::get_inactive_selector()
 {
   return inactiveSelector_;
 }
- 
+
 } // namespace nalu
 } // namespace Sierra

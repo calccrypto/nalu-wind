@@ -31,7 +31,7 @@
 #include "HYPRE_parcsr_mv.h"
 #include "krylov.h"
 #include "HYPRE.h"
-// why are these included 
+// why are these included
 #include "_hypre_parcsr_mv.h"
 #include "_hypre_IJ_mv.h"
 #include "HYPRE_config.h"
@@ -82,7 +82,7 @@ struct absAscendingOrdering
   absAscendingOrdering() {}
   __host__ __device__
   bool operator()(const thrust::tuple<TYPE,double>& x, const thrust::tuple<TYPE,double>& y) const
-  { 
+  {
     TYPE x1 = thrust::get<0>(x);
     double x2 = thrust::get<1>(x);
     TYPE y1 = thrust::get<0>(y);
@@ -183,12 +183,12 @@ public:
 
   void fill_entity_to_row_mapping();
   void fill_device_data_structures();
-  void fill_hids_columns(const unsigned numNodes, 
+  void fill_hids_columns(const unsigned numNodes,
 			 stk::mesh::Entity const * nodes,
 			 std::vector<HypreIntType> & hids,
 			 std::vector<HypreIntType> & columns);
   void fill_owned_shared_data_structures_1DoF(const unsigned numNodes, std::vector<HypreIntType>& hids);
-  void fill_owned_shared_data_structures(const unsigned numNodes, std::vector<HypreIntType>& hids, 
+  void fill_owned_shared_data_structures(const unsigned numNodes, std::vector<HypreIntType>& hids,
 					 std::vector<HypreIntType>& columns);
 
   // Quiet "partially overridden" compiler warnings.
@@ -230,7 +230,7 @@ public:
    *
    *  \sa sierra::nalu::FixPressureAtNodeAlgorithm
    */
-  virtual void buildDirichletNodeGraph(const std::vector<stk::mesh::Entity>&);
+  virtual void buildDirichletNodeGraph(const stk::mesh::EntityVector&);
   virtual void buildDirichletNodeGraph(const stk::mesh::NgpMesh::ConnectedNodes);
 
   sierra::nalu::CoeffApplier* get_coeff_applier();
@@ -244,14 +244,14 @@ public:
   public:
 
     HypreLinSysCoeffApplier(bool useNativeCudaSort, bool ensureReproducible, unsigned numDof,
-			    unsigned numDim, HypreIntType globalNumRows, int rank, 
+			    unsigned numDim, HypreIntType globalNumRows, int rank,
 			    HypreIntType iLower, HypreIntType iUpper,
 			    HypreIntType jLower, HypreIntType jUpper, MemoryMap map_shared,
 			    HypreIntTypeView mat_elem_cols_owned, HypreIntTypeView mat_elem_cols_shared,
 			    UnsignedView mat_elem_start_owned, UnsignedView mat_elem_start_shared,
 			    UnsignedView mat_row_start_owned, UnsignedView mat_row_start_shared,
 			    UnsignedView rhs_row_start_owned, UnsignedView rhs_row_start_shared,
-			    HypreIntTypeView row_indices_owned, HypreIntTypeView row_indices_shared, 
+			    HypreIntTypeView row_indices_owned, HypreIntTypeView row_indices_shared,
 			    HypreIntTypeView row_counts_owned, HypreIntTypeView row_counts_shared,
 			    HypreIntType num_mat_pts_to_assemble_total_owned,
 			    HypreIntType num_mat_pts_to_assemble_total_shared,
@@ -281,10 +281,10 @@ public:
                            const unsigned,
                            const unsigned,
                            const double,
-                           const double) { 
+                           const double) {
       checkSkippedRows_() = 0;
     }
-  
+
     KOKKOS_FUNCTION
     virtual void binarySearchOwned(unsigned l, unsigned r, HypreIntType x, unsigned& result);
 
@@ -319,7 +319,7 @@ public:
                             const char * trace_tag);
 
     virtual void sortMatrixElementBins(const HypreIntType nrows, const HypreIntType N,
-				       const HypreIntType global_num_cols, 
+				       const HypreIntType global_num_cols,
 				       const UnsignedView & mat_row_start,
 				       const HypreIntTypeView & row_indices,
 				       HypreIntTypeView & iwork,
@@ -337,7 +337,7 @@ public:
     virtual void sortRhsElementBins(const HypreIntType nrows, const HypreIntType N, const unsigned index,
 				    const HypreIntTypeView & row_indices, const UnsignedView & rhs_row_start,
 				    HypreIntTypeView & iwork, DoubleView2D & values_in_out);
-    
+
     virtual void fillRhsVector(const HypreIntType nrows, const HypreIntType N, const int index,
 			       const UnsignedView & rhs_row_start,
 			       const DoubleView2D & values_in,
@@ -361,14 +361,14 @@ public:
 
     virtual void resetInternalData();
 
-    virtual void applyDirichletBCs(Realm & realm, 
+    virtual void applyDirichletBCs(Realm & realm,
 				   stk::mesh::FieldBase * solutionField,
 				   stk::mesh::FieldBase * bcValuesField,
 				   const stk::mesh::PartVector& parts);
-    
+
     virtual void finishAssembly(HYPRE_IJMatrix hypreMat, std::vector<HYPRE_IJVector> hypreRhs);
-    
-    virtual void sum_into_nonNGP(const std::vector<stk::mesh::Entity>& entities,
+
+    virtual void sum_into_nonNGP(const stk::mesh::EntityVector& entities,
 				 const std::vector<double>& rhs,
 				 const std::vector<double>& lhs);
 
@@ -427,7 +427,7 @@ public:
     HypreIntType num_rhs_pts_to_assemble_total_owned_;
     //! total number of points in the rhs shared lists
     HypreIntType num_rhs_pts_to_assemble_total_shared_;
-      
+
     //! rows for the periodic boundary conditions ... owned. There is no shared version of this
     HypreIntTypeView periodic_bc_rows_owned_;
 
@@ -458,7 +458,7 @@ public:
     UnsignedView rhs_counter_owned_;
     UnsignedView mat_counter_shared_;
     UnsignedView rhs_counter_shared_;
-    
+
     //! list for the column indices ... later to be assembled to the CSR matrix in Hypre
     HypreIntTypeView cols_owned_;
     HypreIntTypeView cols_shared_;
@@ -592,7 +592,7 @@ public:
    *  @param[in] trace_tag Debugging message
    */
   virtual void sumInto(
-    const std::vector<stk::mesh::Entity> & sym_meshobj,
+    const stk::mesh::EntityVector & sym_meshobj,
     std::vector<int> &scratchIds,
     std::vector<double> &scratchVals,
     const std::vector<double> & rhs,
@@ -617,7 +617,7 @@ public:
    *  proceed.
    */
   virtual void resetRows(
-    const std::vector<stk::mesh::Entity>&,
+    const stk::mesh::EntityVector&,
     const unsigned,
     const unsigned,
     const double,

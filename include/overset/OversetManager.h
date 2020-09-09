@@ -18,6 +18,10 @@
 
 #include <vector>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk {
 namespace io {
 class StkMeshIoBroker;
@@ -29,7 +33,11 @@ class MetaData;
 class BulkData;
 class Ghosting;
 class FieldBase;
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 struct Entity;
 }
 }

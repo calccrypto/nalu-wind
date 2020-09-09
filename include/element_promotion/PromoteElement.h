@@ -15,9 +15,21 @@
 
 #include <vector>
 
-namespace stk { namespace mesh { class Part; } }
-namespace stk { namespace mesh { typedef std::vector<Part*> PartVector; } }
-namespace stk { namespace mesh { class BulkData; } }
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
+namespace stk {
+namespace mesh {
+  class Part;
+  typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                       , SICMAllocator< Part * >
+#endif
+                       > PartVector;
+  class BulkData;
+}
+}
 typedef stk::mesh::Field<double, stk::mesh::Cartesian>  VectorFieldType;
 
 namespace sierra {

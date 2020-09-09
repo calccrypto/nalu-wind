@@ -172,6 +172,19 @@ if(ENABLE_TIOGA)
   endif()
 endif()
 
+########################### SICM #####################################
+if(ENABLE_SICM)
+  set(CMAKE_PREFIX_PATH ${SICM_DIR} ${CMAKE_PREFIX_PATH})
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(SICM REQUIRED sicm)
+  if(SICM_FOUND)
+    message(STATUS "Found SICM = ${SICM_LIBRARY_DIRS}")
+    target_link_libraries(nalu PUBLIC ${SICM_LIBRARIES})
+    target_include_directories(nalu SYSTEM PUBLIC ${SICM_INCLUDE_DIRS})
+    target_compile_definitions(nalu PUBLIC NALU_USES_SICM)
+  endif()
+endif()
+
 ########################### NALU #####################################
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")

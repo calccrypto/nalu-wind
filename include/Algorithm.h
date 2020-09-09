@@ -14,10 +14,18 @@
 
 #include <vector>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk {
 namespace mesh {
 class Part;
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 namespace sierra{

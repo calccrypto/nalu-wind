@@ -26,6 +26,10 @@
 #include <unordered_set>
 #include <vector>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace Ioss {
 class DatabaseIO;
 class ElementBlock;
@@ -50,7 +54,11 @@ namespace stk {
     class MetaData;
     class Part;
 
-    typedef std::vector<Part*> PartVector;
+    typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                         , SICMAllocator< Part * >
+#endif
+                         > PartVector;
   }
 }
 

@@ -19,6 +19,10 @@
 #include <vector>
 #include <utility>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 // stk forwards
 namespace stk {
   namespace mesh {
@@ -26,7 +30,11 @@ namespace stk {
     class FieldBase;
     class MetaData;
     class Part;
-    typedef std::vector<Part*> PartVector;
+    typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                         , SICMAllocator< Part * >
+#endif
+                         > PartVector;
     class Selector;
   }
 }

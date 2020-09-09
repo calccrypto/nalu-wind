@@ -20,14 +20,30 @@
 
 #include <stk_topology/topology.hpp>
 
-namespace stk { namespace mesh { class Part; } }
-namespace stk { namespace mesh { class BulkData; } }
-namespace stk { namespace mesh { class Selector; } }
-namespace stk { namespace mesh { struct Entity; } }
-namespace stk { namespace mesh { typedef std::vector< Part * > PartVector; } }
-namespace stk { namespace mesh { typedef std::vector< Entity > EntityVector; } }
-namespace stk { namespace mesh { typedef std::vector< EntityId > EntityIdVector; } }
-namespace sierra { namespace nalu { struct ElementDescription; } }
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
+namespace stk {
+namespace mesh {
+  class Part;
+  class BulkData;
+  class Selector;
+  struct Entity;
+#ifdef NALU_USES_SICM
+  typedef std::vector< Part *,   SICMAllocator< Part *   > > PartVector;
+  typedef std::vector< Entity,   SICMAllocator< Entity   > > EntityVector;
+#else
+  typedef std::vector< Part *   > PartVector;
+  typedef std::vector< Entity   > EntityVector;
+#endif
+  typedef std::vector< EntityId > EntityIdVector;
+}
+}
+
+namespace sierra { namespace nalu { struct ElementDescription;
+}
+}
 typedef stk::mesh::Field<double, stk::mesh::Cartesian>  VectorFieldType;
 
 namespace sierra {

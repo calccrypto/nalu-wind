@@ -20,13 +20,21 @@
 // stk_transfer related
 #include <stk_transfer/TransferBase.hpp>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace YAML { class Node; }
 
 // stk
 namespace stk {
 namespace mesh {
 class Part;
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 

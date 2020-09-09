@@ -7,6 +7,10 @@
 #include <vector>
 #include <array>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace YAML { class Node; }
 
 namespace stk {
@@ -15,7 +19,11 @@ class MetaData;
 class BulkData;
 class Part;
 
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 

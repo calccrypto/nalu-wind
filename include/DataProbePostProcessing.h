@@ -24,6 +24,10 @@
 
 #include <stk_io/StkMeshIoBroker.hpp>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace YAML { class Node; }
 
 // stk forwards
@@ -35,7 +39,11 @@ namespace stk {
     class Part;
     //class Selector; ? why is this?
     struct Entity;
-    typedef std::vector< Part * > PartVector;
+    typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                         , SICMAllocator< Part * >
+#endif
+                         > PartVector;
   }
 }
 

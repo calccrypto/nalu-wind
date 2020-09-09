@@ -52,7 +52,7 @@ AssembleContinuityInflowSolverAlgorithm::AssembleContinuityInflowSolverAlgorithm
   // save off fields
   stk::mesh::MetaData & meta_data = realm_.meta_data();
   exposedAreaVec_ = meta_data.get_field<GenericFieldType>(meta_data.side_rank(), "exposed_area_vector");
-  velocityBC_ = meta_data.get_field<VectorFieldType>(stk::topology::NODE_RANK, realm_.solutionOptions_->activateOpenMdotCorrection_ 
+  velocityBC_ = meta_data.get_field<VectorFieldType>(stk::topology::NODE_RANK, realm_.solutionOptions_->activateOpenMdotCorrection_
                                                      ? "velocity_bc" : "cont_velocity_bc");
   // variable density will need density as a function of user inflow conditions
   densityBC_ = meta_data.get_field<ScalarFieldType>(stk::topology::NODE_RANK, "density");
@@ -92,8 +92,8 @@ AssembleContinuityInflowSolverAlgorithm::execute()
   std::vector<double> rhs;
   std::vector<int> scratchIds;
   std::vector<double> scratchVals;
-  std::vector<stk::mesh::Entity> connected_nodes;
-  
+  stk::mesh::EntityVector connected_nodes;
+
   // nodal fields to gather; gather everything other than what we are assembling
   std::vector<double> ws_densityBC;
   std::vector<double> ws_velocityBC;

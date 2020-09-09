@@ -15,13 +15,22 @@
 
 #include <stk_topology/topology.hpp>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk {
   namespace mesh {
     class MetaData;
     class Part;
     class Bucket;
-    typedef std::vector< Part * > PartVector;
+#ifdef NALU_USES_SICM
+    typedef std::vector< Part *,   SICMAllocator< Part *> >   PartVector;
+    typedef std::vector< Bucket *, SICMAllocator< Bucket *> > BucketVector;
+#else
+    typedef std::vector< Part *   > PartVector;
     typedef std::vector< Bucket * > BucketVector;
+#endif
   }
 }
 

@@ -21,13 +21,21 @@
 #include <vector>
 #include <string>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk { namespace mesh { struct Entity; } }
 
 namespace stk{
 namespace mesh{
 class FieldBase;
 class Part;
-typedef std::vector< Part * > PartVector ;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 

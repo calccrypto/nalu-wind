@@ -22,12 +22,20 @@
 #include <stk_mesh/base/Ngp.hpp>
 #include <stk_mesh/base/NgpMesh.hpp>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk{
 struct topology;
 namespace mesh{
 class FieldBase;
 class Part;
-typedef std::vector<Part*> PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 

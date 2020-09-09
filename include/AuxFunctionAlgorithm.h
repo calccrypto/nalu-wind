@@ -16,13 +16,21 @@
 #include <vector>
 #include <stk_mesh/base/Types.hpp>
 
+#ifdef NALU_USES_SICM
+#include <sicm.hpp>
+#endif
+
 namespace stk{
 namespace mesh{
 class Part;
 class FieldBase;
 class Selector;
 
-typedef std::vector< Part * > PartVector;
+typedef std::vector< Part *
+#ifdef NALU_USES_SICM
+                     , SICMAllocator< Part * >
+#endif
+                     > PartVector;
 }
 }
 
